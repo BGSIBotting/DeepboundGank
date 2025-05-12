@@ -4,12 +4,12 @@ repeat task.wait() until game:IsLoaded()
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
-local TweenService = game:GetService("TweenService")
+--local TweenService = game:GetService("TweenService")
 
 local Player = Players.LocalPlayer
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local EggList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/egglist.lua"))()
+--local EggList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/egglist.lua"))()
 local RiftList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/rifts.lua"))()
 
 local Window = Fluent:CreateWindow({
@@ -33,8 +33,6 @@ local Options = Fluent.Options
 
 local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
 
-local Settings = {}
-
 local Webhooks = {
     Underworld = "https://webhook.lewisakura.moe/api/webhooks/1371602689611534407/UV2446W6NDufLBNx6N27trxcodVPIH32f5w0C7anZfXUenHxh9Vj0o_e_mOaJwK-Emmj/queue",
     Island = "https://webhook.lewisakura.moe/api/webhooks/1371603830378205386/7hWqS8XiI3mbBK8PezeMSO0Wj_U-5AMR579hEmsSJas2liPb3jhs86LSOalQa6Z7hiI9/queue",
@@ -50,24 +48,21 @@ local function BlowBubble()
     end
 end
 
-local function HatchEgg()
-    
-end
-
 local CachedRifts = {}
 
 local AutoBlow = Tabs.Farming:AddToggle("BlowToggle", {Title = "Auto Blow", Default = false})
-local AutoSell = Tabs.Farming:AddToggle("SellToggle", {Title = "Auto Sell", Default = false})
+--local AutoSell = Tabs.Farming:AddToggle("SellToggle", {Title = "Auto Sell", Default = false})
 
-local EggDropdown = Tabs.Hatching:AddDropdown("Egg", {
+--[[local EggDropdown = Tabs.Hatching:AddDropdown("Egg", {
     Title = "Egg",
     Values = EggList,
     Multi = false,
     Default = 1
-})
+})]]
 
 
 local function Send(Data: {}, Webhook: string)
+    print(Webhook)
     if Data and Webhook then
         request({
             Url = Webhook,
@@ -82,10 +77,10 @@ local function RiftSend(Rift: Model, RiftData: string)
     local Multi = "---"
 
     if RiftData == "Island" or RiftData == "Underworld" then
-       Multi = Rift.Display.SurfaceGui.Icon.Luck.Text 
+       Multi = Rift:WaitForChild("Display"):WaitForChild("SurfaceGui"):WaitForChild("Icon"):WaitForChild("Luck").Text
     end
 
-    local Time = Rift.Display.SurfaceGui.Timer.Text
+    local Time = Rift:WaitForChild("Display"):WaitForChild("SurfaceGui"):WaitForChild("Timer").Text
     local Deeplink = `roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId}`
 
     local Webhook = Webhooks[RiftData] or Webhooks.Misc
@@ -134,33 +129,8 @@ local function RiftSend(Rift: Model, RiftData: string)
     }, Webhook)
 end
 
-local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
-
+--local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
 local AnnounceRift = Tabs.Rifts:AddToggle("AnnounceRift", {Title = "Announce Rifts", Default = false})
-
-local Teleports = Tabs.Teleports:AddButton({
-    Title = "Unlock All Overworld Islands",
-    Callback = function()
-        if Settings.IsTeleporting then return end
-        Settings.IsTeleporting = true
-
-        local Character = Player.Character or Player.CharacterAdded:Wait()
-        local Islands = workspace.Worlds["The Overworld"].Islands
-
-        for _, Island in ipairs(Islands:GetChildren()) do
-            local Tween = TweenService:Create(Character.HumanoidRootPart, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 300, Enum.EasingStyle.Linear), {CFrame = Island.Island.UnlockHitbox.CFrame})
-            
-            Tween:Play()
-            Tween.Completed:Wait()
-
-            Character.HumanoidRootPart.CFrame = Island.Island.UnlockHitbox.CFrame
-
-            task.wait(0.5)
-        end
-
-        Settings.IsTeleporting = false
-    end
-})
 
 AutoBlow:OnChanged(function()
     print(Options.BlowToggle.Value)
