@@ -24,6 +24,14 @@ local Tabs = {
 
 local Options = Fluent.Options
 
+local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
+
+local function BlowBubble()
+    while task.wait() do
+        Event:FireServer("BlowBubble")
+    end
+end)
+
 local AutoBlow = Tabs.Farming:AddToggle("BlowToggle", {Title = "Auto Blow", Default = false})
 local AutoSell = Tabs.Farming:AddToggle("SellToggle", {Title = "Auto Sell", Default = false})
 
@@ -34,15 +42,13 @@ local EggDropdown = Tabs.Hatching:AddDropdown("Dropdown", {
     Default = 1
 })
 
-task.spawn(function()
-    local args = {
-        "BlowBubble"
-    }
+local Tasks = {}
 
-    while Options.BlowToggle.Value == true do
-        print("Blowing bubble")
-        ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent:FireServer(unpack(args))
-        task.wait()
+Options.BlowToggle:Changed(function()
+    if Options.BlowToggle.Value == true then
+        Tasks.AutoBlow = task.spawn(BlowBubble)
+    else
+        task.cancel(Tasks.AutoBlow)
     end
 end)
 
@@ -56,10 +62,3 @@ task.spawn(function()
         task.wait(5)
     end
 end)
-
-task.spawn(function()
-    while task.wait(2) do
-        print(Options.BlowToggle.Value, Options.SellToggle.Value)
-    end
-end)
-
