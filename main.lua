@@ -48,7 +48,7 @@ AutoBlow:Changed(function()
     if Options.BlowToggle.Value == true then
         Tasks.AutoBlow = task.spawn(BlowBubble)
     else
-        task.cancel(Tasks.AutoBlow)
+        --task.cancel(Tasks.AutoBlow)
     end
 end)
 
