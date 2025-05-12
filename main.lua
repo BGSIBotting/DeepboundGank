@@ -195,5 +195,4 @@ AnnounceRift:OnChanged(function()
         end)
     end
 end)
-
 Window:SelectTab(1)
