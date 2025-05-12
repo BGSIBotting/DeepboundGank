@@ -73,7 +73,9 @@ end
 local function RiftSend(Rift: Model, RiftData: string)
     local Multi = RiftData == "Island" and Rift.Display.SurfaceGui.Icon.Luck.Text or "---"
     local Time = Rift.Display.SurfaceGui.Timer.Text
-    
+    local Deeplink = `roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId}`
+
+
     Send({
         embeds = {
             {
@@ -107,7 +109,7 @@ local function RiftSend(Rift: Model, RiftData: string)
                                 },
                                 {
                                     name = "Join Link",
-                                    value = `[Click To Join](roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId})`,
+                                    value = `[Click To Join]({Deeplink})`,
                                     inline = true
                                 },
                             }
@@ -130,7 +132,7 @@ local Teleports = Tabs.Teleports:AddButton({
         local Islands = workspace.Worlds["The Overworld"].Islands
 
         for _, Island in ipairs(Islands:GetChildren()) do
-            local Tween = TweenService:Create(Island.Island.UnlockHitbox, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 100))
+            local Tween = TweenService:Create(Character.HumanoidRootPart, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 100), {CFrame = Island.Island.UnlockHitbox.CFrame})
             Tween:Play()
             Tween.Completed:Wait()
         end
