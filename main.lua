@@ -1,1 +1,1 @@
-print("hi")
+game.Players.LocalPlayer:Kick("exploiting")
