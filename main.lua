@@ -1,8 +1,12 @@
 if game.PlaceId ~= 85896571713843 then return end
 repeat task.wait() until game:IsLoaded()
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local EggList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/egglist.lua"))()
@@ -33,9 +37,8 @@ local Settings = {}
 local Tasks = {}
 
 local function BlowBubble()
-    while Options.AutoBlow.Value == true do
+    while task.wait() do
         Event:FireServer("BlowBubble")
-        task.wait()
     end
 end
 
@@ -55,13 +58,86 @@ local EggDropdown = Tabs.Hatching:AddDropdown("Egg", {
     Default = 1
 })
 
-local function Send()
 
+local function Send(Data: {})
+    if Settings.Webhook and Data then
+        request({
+            Url = Settings.Webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(Data)
+        })
+    end    
+end
+
+local function RiftSend(Rift: Model, RiftData: string)
+    local Multi = RiftData == "Island" and Rift.Display.SurfaceGui.Icon.Luck.Text or "---"
+    local Time = Rift.Display.SurfaceGui.Timer.Text
+    
+    Send({
+        embeds = {
+            {
+                title = "RIFT FOUND",
+                            color = 5814783,
+                            fields = {
+                                {
+                                    name = "Type",
+                                    value = Rift.Name,
+                                    inline = true
+                                },
+                                {
+                                    name = "Multiplier",
+                                    value = Multi,
+                                    inline = true
+                                },
+                                {
+                                    name = "Time Left",
+                                    value = Time,
+                                    inline = true
+                                },
+                                {
+                                    name = "Players",
+                                    value = `{#Players:GetPlayers()}/{Players.MaxPlayers}`,
+                                    inline = true
+                                },
+                                {
+                                    name = "Height",
+                                    value = `Y {math.round(Rift.Display.Position.Y)}`,
+                                    inline = true
+                                },
+                                {
+                                    name = "Join Link",
+                                    value = `[Click To Join](roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId})`,
+                                    inline = true
+                                },
+                            }
+            }                    
+        }
+    })
 end
 
 local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
 
 local AnnounceRift = Tabs.Rifts:AddToggle("AnnounceRift", {Title = "Announce Rifts", Default = false})
+
+local Teleports = Tabs.Teleports:AddButton({
+    Title = "Unlock All Overworld Islands",
+    Callback = function()
+        if Settings.IsTeleporting then return end
+        Settings.IsTeleporting = true
+
+        local Character = Player.Character or Player.CharacterAdded:Wait()
+        local Islands = workspace.Worlds["The Overworld"].Islands
+
+        for _, Island in ipairs(Islands:GetChildren()) do
+            local Tween = TweenService:Create(Island.Island.UnlockHitbox, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 100))
+            Tween:Play()
+            Tween.Completed:Wait()
+        end
+
+        Settings.IsTeleporting = false
+    end
+})
 
 local AddWebhook = Tabs.Config:AddInput("Webhook", {
     Title = "Add Webhook",
@@ -74,32 +150,40 @@ local AddWebhook = Tabs.Config:AddInput("Webhook", {
 })
 
 AutoBlow:OnChanged(function()
+    print(Options.BlowToggle.Value)
     if Options.BlowToggle.Value == true then
         Tasks.AutoBlow = task.spawn(BlowBubble)
     else
         if Tasks.AutoBlow then
-            task.cancel(Tasks.AutoBlow)
-            Tasks.AutoBlow = nil
+           task.cancel(Tasks.AutoBlow)
+           Tasks.AutoBlow = nil 
         end
     end
 end)
 
 AnnounceRift:OnChanged(function()
     if Options.AnnounceRift.Value == true then
+        if not Settings.Webhook then return end
         for _, Rift in pairs(workspace.Rendered.Rifts:GetChildren()) do
-            if RiftList[Rift.Name] and (not CachedRifts[Rift]) then
+            local RiftData = RiftList[Rift.Name]
+            if RiftData and (not CachedRifts[Rift]) then
                 CachedRifts[Rift] = true
 
-                print("dealealeal")
+                RiftSend(Rift, RiftData)
             end
         end
 
-        Tasks.AnnounceRift = workspace.Rendered.Rifts.ChildAdded:Connect(function(Child: Model)
-            if RiftList[Child.Name] and (not CachedRifts[Child]) then
-                CachedRifts[Child] = true
+        Tasks.AnnounceRift = workspace.Rendered.Rifts.ChildAdded:Connect(function(Rift: Model)
+           if not Settings.Webhook then return end
 
-                print("dealealeal")
+            local RiftData = RiftList[Rift.Name]
+            if RiftData and (not CachedRifts[Rift]) then
+                CachedRifts[Rift] = true
+
+                RiftSend(Rift, RiftData)
             end
         end)
     end
 end)
+
+Window:SelectTab(1)
