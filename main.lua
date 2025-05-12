@@ -34,6 +34,7 @@ local Options = Fluent.Options
 local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
 
 local Settings = {}
+
 local Webhooks = {
     Underworld = "https://webhook.lewisakura.moe/api/webhooks/1371602689611534407/UV2446W6NDufLBNx6N27trxcodVPIH32f5w0C7anZfXUenHxh9Vj0o_e_mOaJwK-Emmj/queue",
     Island = "https://webhook.lewisakura.moe/api/webhooks/1371603830378205386/7hWqS8XiI3mbBK8PezeMSO0Wj_U-5AMR579hEmsSJas2liPb3jhs86LSOalQa6Z7hiI9/queue",
@@ -84,7 +85,7 @@ local function RiftSend(Rift: Model, RiftData: string)
 
     local Webhook = Webhooks[RiftData] or Webhooks.Misc
     
-    if RiftData == "Island" and Multi ~= "x25" then return end
+    if RiftData == "Island" and Multi == "x25" then return end
 
     Send({
         embeds = {
@@ -125,7 +126,7 @@ local function RiftSend(Rift: Model, RiftData: string)
                             }
             }                    
         }
-    }, Webhook)
+    })
 end
 
 local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
@@ -170,7 +171,6 @@ end)
 
 AnnounceRift:OnChanged(function()
     if Options.AnnounceRift.Value == true then
-        if not Settings.Webhook then return end
         for _, Rift in pairs(workspace.Rendered.Rifts:GetChildren()) do
             local RiftData = RiftList[Rift.Name]
             if RiftData and (not CachedRifts[Rift]) then
