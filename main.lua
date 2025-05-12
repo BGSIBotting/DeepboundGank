@@ -33,8 +33,9 @@ local Settings = {}
 local Tasks = {}
 
 local function BlowBubble()
-    while task.wait() do
+    while Options.AutoBlow.Value == true do
         Event:FireServer("BlowBubble")
+        task.wait()
     end
 end
 
@@ -76,7 +77,10 @@ AutoBlow:OnChanged(function()
     if Options.BlowToggle.Value == true then
         Tasks.AutoBlow = task.spawn(BlowBubble)
     else
-        task.cancel(Tasks.AutoBlow)
+        if Tasks.AutoBlow then
+            task.cancel(Tasks.AutoBlow)
+            Tasks.AutoBlow = nil
+        end
     end
 end)
 
