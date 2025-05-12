@@ -186,8 +186,6 @@ AnnounceRift:OnChanged(function()
         end
 
         Tasks.AnnounceRift = workspace.Rendered.Rifts.ChildAdded:Connect(function(Rift: Model)
-           if not Settings.Webhook then return end
-
             local RiftData = RiftList[Rift.Name]
             if RiftData and (not CachedRifts[Rift]) then
                 CachedRifts[Rift] = true
