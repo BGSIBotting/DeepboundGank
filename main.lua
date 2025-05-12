@@ -82,15 +82,15 @@ local function RiftSend(Rift: Model, RiftData: string)
     local Multi = "---"
 
     if RiftData == "Island" or RiftData == "Underworld" then
-       Multi = Rift:WaitForChild("Display"):WaitForChild("SurfaceGui"):WaitForChild("Icon"):WaitForChild("Luck").Text 
+       Multi = Rift.Display.SurfaceGui.Icon.Luck.Text 
     end
 
-    local Time = Rift:WaitForChild("Display"):WaitForChild("SurfaceGui"):WaitForChild("Timer").Text
+    local Time = Rift.Display.SurfaceGui.Timer.Text
     local Deeplink = `roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId}`
 
     local Webhook = Webhooks[RiftData] or Webhooks.Misc
     
-    --if RiftData == "Island" and Multi ~= "x25" then return end
+    if RiftData == "Island" and Multi ~= "x25" then return end
 
     Send({
         embeds = {
@@ -131,7 +131,7 @@ local function RiftSend(Rift: Model, RiftData: string)
                             }
             }                    
         }
-    })
+    }, Webhook)
 end
 
 local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
@@ -195,4 +195,5 @@ AnnounceRift:OnChanged(function()
         end)
     end
 end)
+
 Window:SelectTab(1)
