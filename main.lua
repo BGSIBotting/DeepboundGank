@@ -9,6 +9,7 @@ local HttpService = game:GetService("HttpService")
 local Player = Players.LocalPlayer
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 --local EggList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/egglist.lua"))()
 local RiftList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/rifts.lua"))()
 
@@ -34,10 +35,10 @@ local Options = Fluent.Options
 local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
 
 local Webhooks = {
-    Underworld = "https://webhook.lewisakura.moe/api/webhooks/1371602689611534407/UV2446W6NDufLBNx6N27trxcodVPIH32f5w0C7anZfXUenHxh9Vj0o_e_mOaJwK-Emmj/queue",
-    Island = "https://webhook.lewisakura.moe/api/webhooks/1371603830378205386/7hWqS8XiI3mbBK8PezeMSO0Wj_U-5AMR579hEmsSJas2liPb3jhs86LSOalQa6Z7hiI9/queue",
-    Special = "https://discord.com/api/webhooks/1371604553295859774/gNWvBpTdqwwftw3B1l5Hep2DHbpp3-IjjN8YqtrMrbLCdqB3sVzFJBhjaWLndsaUrkhs/queue",
-    Misc = "https://webhook.lewisakura.moe/api/webhooks/1371604235380064299/GxlWZKtClN98n70IMdPIe5ws58NcvTlATVJ4DabNqm03oazSVV7TI2f5QT2Dm4hcaYW4/queue",
+    Underworld = "https://webhook.lewisakura.moe/api/webhooks/1371602689611534407/UV2446W6NDufLBNx6N27trxcodVPIH32f5w0C7anZfXUenHxh9Vj0o_e_mOaJwK-Emmj",
+    Island = "https://webhook.lewisakura.moe/api/webhooks/1371603830378205386/7hWqS8XiI3mbBK8PezeMSO0Wj_U-5AMR579hEmsSJas2liPb3jhs86LSOalQa6Z7hiI9",
+    Special = "https://discord.com/api/webhooks/1371604553295859774/gNWvBpTdqwwftw3B1l5Hep2DHbpp3-IjjN8YqtrMrbLCdqB3sVzFJBhjaWLndsaUrkhs",
+    Misc = "https://webhook.lewisakura.moe/api/webhooks/1371604235380064299/GxlWZKtClN98n70IMdPIe5ws58NcvTlATVJ4DabNqm03oazSVV7TI2f5QT2Dm4hcaYW4",
 }
 
 local Tasks = {}
@@ -146,24 +147,34 @@ end)
 
 AnnounceRift:OnChanged(function()
     if Options.AnnounceRift.Value == true then
-        for _, Rift in pairs(workspace.Rendered.Rifts:GetChildren()) do
-            local RiftData = RiftList[Rift.Name]
-            if RiftData and (not CachedRifts[Rift]) then
-                CachedRifts[Rift] = true
+        task.spawn(function()
+            for _, Rift in pairs(workspace.Rendered.Rifts:GetChildren()) do
+                local RiftData = RiftList[Rift.Name]
+                if RiftData and (not CachedRifts[Rift]) then
+                    CachedRifts[Rift] = true
 
-                RiftSend(Rift, RiftData)
+                    RiftSend(Rift, RiftData)
+                end
             end
-        end
+        end)
 
         Tasks.AnnounceRift = workspace.Rendered.Rifts.ChildAdded:Connect(function(Rift: Model)
             local RiftData = RiftList[Rift.Name]
             if RiftData and (not CachedRifts[Rift]) then
                 CachedRifts[Rift] = true
 
-                RiftSend(Rift, RiftData)
+                task.spawn(RiftSend, Rift, RiftData)
             end
         end)
     end
 end)
 
+SaveManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("BGSI")
+
+SaveManager:BuildConfigSection(Tabs.Config)
+
 Window:SelectTab(1)
+
+SaveManager:LoadAutoloadConfig()
