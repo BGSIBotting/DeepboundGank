@@ -1,4 +1,5 @@
 if game.PlaceId ~= 85896571713843 then return end
+repeat task.wait() until game:IsLoaded()
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -30,7 +31,7 @@ local function BlowBubble()
     while task.wait() do
         Event:FireServer("BlowBubble")
     end
-end)
+end
 
 local AutoBlow = Tabs.Farming:AddToggle("BlowToggle", {Title = "Auto Blow", Default = false})
 local AutoSell = Tabs.Farming:AddToggle("SellToggle", {Title = "Auto Sell", Default = false})
@@ -44,11 +45,11 @@ local EggDropdown = Tabs.Hatching:AddDropdown("Dropdown", {
 
 local Tasks = {}
 
-AutoBlow:Changed(function()
+Options.BlowToggle:Changed(function()
     if Options.BlowToggle.Value == true then
         Tasks.AutoBlow = task.spawn(BlowBubble)
     else
-        --task.cancel(Tasks.AutoBlow)
+        task.cancel(Tasks.AutoBlow)
     end
 end)
 
