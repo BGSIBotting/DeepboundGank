@@ -132,9 +132,12 @@ local Teleports = Tabs.Teleports:AddButton({
         local Islands = workspace.Worlds["The Overworld"].Islands
 
         for _, Island in ipairs(Islands:GetChildren()) do
-            local Tween = TweenService:Create(Character.HumanoidRootPart, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 100), {CFrame = Island.Island.UnlockHitbox.CFrame})
+            local Tween = TweenService:Create(Character.HumanoidRootPart, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 100, Enum.EasingStyle.Linear), {CFrame = Island.Island.UnlockHitbox.CFrame})
+            
             Tween:Play()
             Tween.Completed:Wait()
+
+            Character.HumanoidRootPart.CFrame = Island.Island.UnlockHitbox.CFrame
         end
 
         Settings.IsTeleporting = false
