@@ -125,7 +125,7 @@ local function RiftSend(Rift: Model, RiftData: string)
                             }
             }                    
         }
-    })
+    }, Webhook)
 end
 
 local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
