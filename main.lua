@@ -2,9 +2,11 @@ if game.PlaceId ~= 85896571713843 then return end
 repeat task.wait() until game:IsLoaded()
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local EggList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/egglist.lua"))()
+local RiftList = loadstring(game:HttpGet("https://raw.githubusercontent.com/BGSIBotting/DeepboundGank/refs/heads/main/extra/rifts.lua"))()
 
 local Window = Fluent:CreateWindow({
     Title = "DEEPBOUND GANK",
@@ -27,23 +29,48 @@ local Options = Fluent.Options
 
 local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
 
+local Settings = {}
+local Tasks = {}
+
 local function BlowBubble()
     while task.wait() do
         Event:FireServer("BlowBubble")
     end
 end
 
+local function HatchEgg()
+    
+end
+
+local CachedRifts = {}
+
 local AutoBlow = Tabs.Farming:AddToggle("BlowToggle", {Title = "Auto Blow", Default = false})
 local AutoSell = Tabs.Farming:AddToggle("SellToggle", {Title = "Auto Sell", Default = false})
 
-local EggDropdown = Tabs.Hatching:AddDropdown("Dropdown", {
+local EggDropdown = Tabs.Hatching:AddDropdown("Egg", {
     Title = "Egg",
     Values = EggList,
     Multi = false,
     Default = 1
 })
 
-local Tasks = {}
+local function Send()
+
+end
+
+local AutoHatch = Tabs.Hatching:AddToggle("HatchToggle", {Title = "Auto Hatch", Default = false})
+
+local AnnounceRift = Tabs.Rifts:AddToggle("AnnounceRift", {Title = "Announce Rifts", Default = false})
+
+local AddWebhook = Tabs.Config:AddInput("Webhook", {
+    Title = "Add Webhook",
+    Default = "",
+    Numeric = false,
+    Finished = true,
+    Callback = function(Value)
+        Settings.Webhook = Value
+    end
+})
 
 AutoBlow:OnChanged(function()
     if Options.BlowToggle.Value == true then
@@ -53,13 +80,22 @@ AutoBlow:OnChanged(function()
     end
 end)
 
-task.spawn(function()
-     local args = {
-        "SellBubble"
-    }
+AnnounceRift:OnChanged(function()
+    if Options.AnnounceRift.Value == true then
+        for _, Rift in pairs(workspace.Rendered.Rifts:GetChildren()) do
+            if RiftList[Rift.Name] and (not CachedRifts[Rift]) then
+                CachedRifts[Rift] = true
 
-    while Options.SellToggle.Value == true do
-        ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent:FireServer(unpack(args))
-        task.wait(5)
+                print("dealealeal")
+            end
+        end
+
+        Tasks.AnnounceRift = workspace.Rendered.Rifts.ChildAdded:Connect(function(Child: Model)
+            if RiftList[Child.Name] and (not CachedRifts[Child]) then
+                CachedRifts[Child] = true
+
+                print("dealealeal")
+            end
+        end)
     end
 end)
