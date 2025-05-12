@@ -79,13 +79,18 @@ local function Send(Data: {}, Webhook: string)
 end
 
 local function RiftSend(Rift: Model, RiftData: string)
-    local Multi = (RiftData == "Island" or RiftData == "Underworld") and Rift.Display.SurfaceGui.Icon.Luck.Text or "---"
+    local Multi = "---"
+
+    if RiftData == "Island" or RiftData == "Underworld" then
+       Multi = Rift.Display.SurfaceGui.Icon.Luck.Text 
+    end
+
     local Time = Rift.Display.SurfaceGui.Timer.Text
     local Deeplink = `roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId}`
 
     local Webhook = Webhooks[RiftData] or Webhooks.Misc
     
-    if RiftData == "Island" and Multi == "x25" then return end
+    --if RiftData == "Island" and Multi ~= "x25" then return end
 
     Send({
         embeds = {
