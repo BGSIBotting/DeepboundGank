@@ -44,7 +44,7 @@ local EggDropdown = Tabs.Hatching:AddDropdown("Dropdown", {
 
 local Tasks = {}
 
-Options.BlowToggle:Changed(function()
+AutoBlow:Changed(function()
     if Options.BlowToggle.Value == true then
         Tasks.AutoBlow = task.spawn(BlowBubble)
     else
