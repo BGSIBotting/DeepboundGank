@@ -34,7 +34,12 @@ local Options = Fluent.Options
 local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
 
 local Settings = {}
-Settings.Webhook = "https://webhook.lewisakura.moe/api/webhooks/1371339193006948442/_MDHHT8hkhW8FFjTLwYixj95KQcJQRyrLv9xJx_6QP7lCRWyvenemTDpn0vtIaeqVyGe"
+local Webhooks = {
+    Underworld = "https://webhook.lewisakura.moe/api/webhooks/1371602689611534407/UV2446W6NDufLBNx6N27trxcodVPIH32f5w0C7anZfXUenHxh9Vj0o_e_mOaJwK-Emmj/queue",
+    Island = "https://webhook.lewisakura.moe/api/webhooks/1371603830378205386/7hWqS8XiI3mbBK8PezeMSO0Wj_U-5AMR579hEmsSJas2liPb3jhs86LSOalQa6Z7hiI9/queue",
+    Special = "https://discord.com/api/webhooks/1371604553295859774/gNWvBpTdqwwftw3B1l5Hep2DHbpp3-IjjN8YqtrMrbLCdqB3sVzFJBhjaWLndsaUrkhs/queue",
+    Misc = "https://webhook.lewisakura.moe/api/webhooks/1371604235380064299/GxlWZKtClN98n70IMdPIe5ws58NcvTlATVJ4DabNqm03oazSVV7TI2f5QT2Dm4hcaYW4/queue",
+}
 
 local Tasks = {}
 
@@ -61,10 +66,10 @@ local EggDropdown = Tabs.Hatching:AddDropdown("Egg", {
 })
 
 
-local function Send(Data: {})
-    if Settings.Webhook and Data then
+local function Send(Data: {}, Webhook: string)
+    if Data and Webhook then
         request({
-            Url = Settings.Webhook,
+            Url = Webhook,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
             Body = HttpService:JSONEncode(Data)
@@ -73,10 +78,13 @@ local function Send(Data: {})
 end
 
 local function RiftSend(Rift: Model, RiftData: string)
-    local Multi = RiftData == "Island" and Rift.Display.SurfaceGui.Icon.Luck.Text or "---"
+    local Multi = (RiftData == "Island" or RiftData == "Underworld") and Rift.Display.SurfaceGui.Icon.Luck.Text or "---"
     local Time = Rift.Display.SurfaceGui.Timer.Text
     local Deeplink = `roblox://experiences/start?placeId={game.PlaceId}&gameInstanceId={game.JobId}`
 
+    local Webhook = Webhooks[RiftData] or Webhooks.Misc
+    
+    if RiftData == "Island" and Multi ~= "x25" then return end
 
     Send({
         embeds = {
@@ -111,7 +119,7 @@ local function RiftSend(Rift: Model, RiftData: string)
                                 },
                                 {
                                     name = "Join Link",
-                                    value = `[Click To Join]({Deeplink})`,
+                                    value = Deeplink,
                                     inline = false
                                 },
                             }
@@ -145,16 +153,6 @@ local Teleports = Tabs.Teleports:AddButton({
         end
 
         Settings.IsTeleporting = false
-    end
-})
-
-local AddWebhook = Tabs.Config:AddInput("Webhook", {
-    Title = "Add Webhook",
-    Default = "https://webhook.lewisakura.moe/api/webhooks/1371339193006948442/_MDHHT8hkhW8FFjTLwYixj95KQcJQRyrLv9xJx_6QP7lCRWyvenemTDpn0vtIaeqVyGe",
-    Numeric = false,
-    Finished = true,
-    Callback = function(Value)
-        Settings.Webhook = Value
     end
 })
 
