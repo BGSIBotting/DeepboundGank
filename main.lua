@@ -34,6 +34,8 @@ local Options = Fluent.Options
 local Event = ReplicatedStorage.Shared.Framework.Network.Remote.RemoteEvent
 
 local Settings = {}
+Settings.Webhook = "https://webhook.lewisakura.moe/api/webhooks/1371339193006948442/_MDHHT8hkhW8FFjTLwYixj95KQcJQRyrLv9xJx_6QP7lCRWyvenemTDpn0vtIaeqVyGe"
+
 local Tasks = {}
 
 local function BlowBubble()
@@ -110,7 +112,7 @@ local function RiftSend(Rift: Model, RiftData: string)
                                 {
                                     name = "Join Link",
                                     value = `[Click To Join]({Deeplink})`,
-                                    inline = true
+                                    inline = false
                                 },
                             }
             }                    
@@ -132,12 +134,14 @@ local Teleports = Tabs.Teleports:AddButton({
         local Islands = workspace.Worlds["The Overworld"].Islands
 
         for _, Island in ipairs(Islands:GetChildren()) do
-            local Tween = TweenService:Create(Character.HumanoidRootPart, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 100, Enum.EasingStyle.Linear), {CFrame = Island.Island.UnlockHitbox.CFrame})
+            local Tween = TweenService:Create(Character.HumanoidRootPart, TweenInfo.new((Character.PrimaryPart.Position - Island.Island.UnlockHitbox.Position).Magnitude / 300, Enum.EasingStyle.Linear), {CFrame = Island.Island.UnlockHitbox.CFrame})
             
             Tween:Play()
             Tween.Completed:Wait()
 
             Character.HumanoidRootPart.CFrame = Island.Island.UnlockHitbox.CFrame
+
+            task.wait(0.5)
         end
 
         Settings.IsTeleporting = false
@@ -146,7 +150,7 @@ local Teleports = Tabs.Teleports:AddButton({
 
 local AddWebhook = Tabs.Config:AddInput("Webhook", {
     Title = "Add Webhook",
-    Default = "",
+    Default = "https://webhook.lewisakura.moe/api/webhooks/1371339193006948442/_MDHHT8hkhW8FFjTLwYixj95KQcJQRyrLv9xJx_6QP7lCRWyvenemTDpn0vtIaeqVyGe",
     Numeric = false,
     Finished = true,
     Callback = function(Value)
