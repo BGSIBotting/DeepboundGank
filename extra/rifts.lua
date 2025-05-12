@@ -1,4 +1,4 @@
-local rifts = {
+return {
   ["royal-chest"] = "Special",
   ["dice-rift"] = "Special",
   ["underworld-1"] = "Special",
